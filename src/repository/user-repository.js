@@ -1,5 +1,5 @@
 const { where } = require("sequelize");
-const {User} = require("../models/index");
+const { User } = require("../models/index");
 
 class UserRepository {
   async create(data) {
@@ -14,12 +14,38 @@ class UserRepository {
 
   async destroy(userId) {
     try {
-      await User.destroy({ 
+      await User.destroy({
         where: {
           id: userId,
         },
       });
       return true;
+    } catch (error) {
+      console.log("Smthng went wrong in repository layer");
+      throw error;
+    }
+  }
+
+  async getById(userId) {
+    try {
+      const user = await User.findByPk(userId, {
+        attributes: { exclude: ["password"] },
+      });
+      return user;
+    } catch (error) {
+      console.log("Smthng went wrong in repository layer");
+      throw error;
+    }
+  }
+
+  async getByEmail(email) {
+    try {
+      const user = await User.findOne({
+        where: {
+          email: email,
+        },
+      });
+      return user;
     } catch (error) {
       console.log("Smthng went wrong in repository layer");
       throw error;
