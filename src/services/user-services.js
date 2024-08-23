@@ -5,12 +5,12 @@ const bcrypt = require("bcrypt");
 
 class UserService {
   constructor() {
-    this.repository = new UserRepository();
+    this.userRepository = new UserRepository();
   }
 
   async create(data) {
     try {
-      const user = await this.repository.create(data);
+      const user = await this.userRepository.create(data);
       return user;
     } catch (error) {
       console.log("smthng went wrong in service layer");
@@ -20,7 +20,7 @@ class UserService {
 
   async destroy(userId) {
     try {
-      await this.repository.destroy({
+      await this.userRepository.destroy({
         where: {
           id: userId,
         },
@@ -35,7 +35,7 @@ class UserService {
   async signIn(email, plainPassword) {
     try {
       // step 1->
-      const user = await this.repository.getByEmail(email);
+      const user = await this.userRepository.getByEmail(email);
       // step 2->
       const passwordMatching = this.checkPassword(plainPassword, user.password);
 
@@ -48,6 +48,22 @@ class UserService {
       const newJWT = this.createToken({ id: user.id, email: user.email });
       return newJWT;
     } catch (error) {
+      console.log("Smthng went wrong in checking authentication");
+      throw error;
+    }
+  }
+
+  async isAuthenticated(token){
+    try {
+      const response = await this.verifyToken(token);
+      if(!response)
+        throw {error: 'Invalid token'};
+      const user = await this.userRepository.getById(response.id);
+      if(!user){
+        throw {error: 'User not found'};
+      }
+      return user.id;
+    } catch (error) {
       console.log("Smthng went wrong in sign-in process");
       throw error;
     }
@@ -55,7 +71,7 @@ class UserService {
 
   createToken(user) {
     try {
-      const token = jwt.sign(user, PRIVATE_KEY, { expiresIn: "1h" });
+      const token = jwt.sign(user, PRIVATE_KEY, { expiresIn: "1d" });
       return token;
     } catch (error) {
       console.log("Smthng went wrong in creating token in service layer");
