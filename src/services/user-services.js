@@ -53,14 +53,13 @@ class UserService {
     }
   }
 
-  async isAuthenticated(token){
+  async isAuthenticated(token) {
     try {
       const response = await this.verifyToken(token);
-      if(!response)
-        throw {error: 'Invalid token'};
+      if (!response) throw { error: "Invalid token" };
       const user = await this.userRepository.getById(response.id);
-      if(!user){
-        throw {error: 'User not found'};
+      if (!user) {
+        throw { error: "User not found" };
       }
       return user.id;
     } catch (error) {
