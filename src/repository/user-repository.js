@@ -1,5 +1,5 @@
 const { where } = require("sequelize");
-const { User } = require("../models/index");
+const { User, Role } = require("../models/index");
 
 class UserRepository {
   async create(data) {
@@ -46,6 +46,21 @@ class UserRepository {
         },
       });
       return user;
+    } catch (error) {
+      console.log("Smthng went wrong in repository layer");
+      throw error;
+    }
+  }
+
+  async isAdmin(userId){
+    try {
+       const user = await User.findByPk(userId);
+       const adminRole = await Role.findOne({
+        where: {
+          name: 'ADMIN'
+        }
+       })
+       return user.hasRoles(adminRole); //sequelize function for many to many association [ref: https://medium.com/@tavilesa12/dealing-with-many-to-many-associations-in-sequelize-bddc34201b80]
     } catch (error) {
       console.log("Smthng went wrong in repository layer");
       throw error;

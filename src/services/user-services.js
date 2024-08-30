@@ -68,6 +68,16 @@ class UserService {
     }
   }
 
+  async isAdmin(userId){
+    try {
+      const response = await this.userRepository.isAdmin(userId);
+      return response;
+    } catch (error) {
+      console.log("Smthng went wrong in service layer");
+      throw error;
+    }
+  }
+
   createToken(user) {
     try {
       const token = jwt.sign(user, PRIVATE_KEY, { expiresIn: "1d" });
